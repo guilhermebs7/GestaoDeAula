@@ -1,11 +1,40 @@
 const { Prisma } = require('@prisma/client');
 const prisma = require('../database');
+const { toDateOnlyDate, toDateOnlyString } = require('../../utils/dateOnly');
 
 const allowedSortFields = ['id', 'titulo', 'disciplina', 'data_prevista', 'created_at'];
 
 function toDate(value) {
-  if (!value) return null;
-  return value instanceof Date ? value : new Date(value);
+  return toDateOnlyDate(value);
+}
+
+function serializePlano(plano) {
+  if (!plano) return plano;
+
+  return {
+    ...plano,
+    dataPrevista: toDateOnlyString(plano.dataPrevista),
+  };
+}
+
+function getStartOfWeek(date = new Date()) {
+  const result = new Date(date);
+  result.setHours(12, 0, 0, 0);
+  const day = result.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+
+  result.setDate(result.getDate() + diff);
+  result.setHours(12, 0, 0, 0);
+
+  return result;
+}
+
+function getEndOfWeek(date = new Date()) {
+  const result = getStartOfWeek(date);
+  result.setDate(result.getDate() + 6);
+  result.setHours(12, 0, 0, 0);
+
+  return result;
 }
 
 async function createPlanoAula(data) {
@@ -33,7 +62,7 @@ async function createPlanoAula(data) {
     }
   });
 
-  return created;
+  return serializePlano(created);
 }
 
 async function getPlanosAula(filters = {}) {
@@ -117,7 +146,7 @@ async function getPlanosAula(filters = {}) {
     orderBy
   });
 
-  return planos;
+  return planos.map(serializePlano);
 }
 
 async function getPlanoAulaById(id) {
@@ -126,7 +155,7 @@ async function getPlanoAulaById(id) {
     where: { id: Number(id) }
   });
   console.log('Plano encontrado:', plano);
-  return plano || null;
+  return serializePlano(plano) || null;
 }
 
 async function updatePlanoAula(id, data) {
@@ -140,7 +169,7 @@ async function updatePlanoAula(id, data) {
     data: fields
   }).catch(() => null);
 
-  return updated;
+  return serializePlano(updated);
 }
 
 async function deletePlanoAula(id) {
@@ -151,10 +180,25 @@ async function deletePlanoAula(id) {
   return removed;
 }
 
+async function countPlanosDaSemana(referenceDate = new Date()) {
+  const inicioDaSemana = getStartOfWeek(referenceDate);
+  const fimDaSemana = getEndOfWeek(referenceDate);
+
+  return prisma.planosAula.count({
+    where: {
+      dataPrevista: {
+        gte: inicioDaSemana,
+        lte: fimDaSemana
+      }
+    }
+  });
+}
+
 module.exports = {
   createPlanoAula,
   getPlanosAula,
   getPlanoAulaById,
   updatePlanoAula,
-  deletePlanoAula
+  deletePlanoAula,
+  countPlanosDaSemana
 };

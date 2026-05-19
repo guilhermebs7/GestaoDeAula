@@ -1,5 +1,5 @@
 const planoAula = require('../models/planoAula');
-const logger = require('../utils/logger');
+const logger = require('../../utils/logger');
 
 async function listarPlanos(req, res) {
   try {
@@ -30,6 +30,28 @@ async function listarPlanos(req, res) {
     });
     return res.status(500).json({
       message: 'Erro ao listar planos',
+      error: error.message
+    });
+  }
+}
+
+async function contarPlanosDaSemana(req, res) {
+  try {
+    const total = await planoAula.countPlanosDaSemana();
+
+    logger.info('Planos Week Count', {
+      total
+    });
+
+    return res.status(200).json({
+      totalPlanosSemana: total
+    });
+  } catch (error) {
+    logger.error('Planos Week Count Failed', {
+      message: error.message
+    });
+    return res.status(500).json({
+      message: 'Erro ao contar planos da semana',
       error: error.message
     });
   }
@@ -162,6 +184,7 @@ async function deletarPlano(req, res) {
 
 module.exports = {
   listarPlanos,
+  contarPlanosDaSemana,
   buscarPlanoPorId,
   criarPlano,
   atualizarPlano,

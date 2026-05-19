@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PlanoForm from './components/PlanoForm';
 import PlanoCards from './components/PlanoCards';
-import PlanoView from './components/PlanoView';
+import PlanoView from './components/planoView';
 import ConfirmDeleteModal from './components/ConfirmDeleteModal';
 
 import './App.css';
@@ -26,6 +26,7 @@ function App() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [dataAtual, setDataAtual] = useState('');
   const [saudacao, setSaudacao] = useState('');
+  const [totalPlanosSemana, setTotalPlanosSemana] = useState(0);
   const [page, setPage] = useState(1);
 
   // Filtros
@@ -166,15 +167,23 @@ function App() {
           
           const queryString = params.toString();
           const url = queryString ? `/planos?${queryString}` : '/planos';
+          const [resPlanos, resResumo] = await Promise.all([
+            fetch(url),
+            fetch('/planos/resumo/semana')
+          ]);
           
-          const res = await fetch(url);
-
-          if (!res.ok) {
+          if (!resPlanos.ok) {
             throw new Error('Erro ao carregar planos');
           }
 
-          const dados = await res.json();
+          if (!resResumo.ok) {
+            throw new Error('Erro ao carregar resumo da semana');
+          }
+
+          const dados = await resPlanos.json();
+          const resumo = await resResumo.json();
           setPlanos(dados);
+          setTotalPlanosSemana(Number(resumo.totalPlanosSemana || 0));
           setPage(1);
           setError('');
         } catch (err) {
@@ -214,9 +223,9 @@ function App() {
               </div>
             </div>
             <div className="hero-body">
-              <h1>{saudacao}, Prof. Ana! </h1>
+              <h1>{saudacao}</h1>
               <p>
-                Você tem 2 planos em rascunho aguardando finalização e 0 aulas programadas para esta semana.
+                Você possui {totalPlanosSemana} planos.
               </p>
             </div>
           </section>

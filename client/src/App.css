@@ -438,6 +438,16 @@
   color: #2563eb;
 }
 
+.status-no-prazo {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-expirado {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .plano-card-summary {
   margin: 0;
   font-size: 14px;

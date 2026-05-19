@@ -4,23 +4,14 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { FiEdit3, FiTrash } from 'react-icons/fi';
 import { IoBookOutline, IoFolderOutline } from 'react-icons/io5';
 import { FiCalendar } from 'react-icons/fi';
+import { formatDateOnlyPtBr } from '../utils/dateOnly';
 
 function formatarData(data) {
-  if (!data) return '';
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  }).format(new Date(data));
+  return formatDateOnlyPtBr(data, { month: 'short', year: 'numeric' });
 }
 
 function formatarDataAtualizado(data) {
-  if (!data) return '';
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(data));
+  return formatDateOnlyPtBr(data, { month: 'long', year: 'numeric' });
 }
 
 export default function PlanoView({ plano, onClose, onEditar, onExcluir }) {

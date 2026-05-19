@@ -1,5 +1,6 @@
 // frontend/src/components/PlanosList.jsx
 import React, { useEffect, useState } from 'react';
+import { formatDateOnlyPtBr } from '../utils/dateOnly';
 
 export default function PlanosList({
   busca = '',
@@ -97,7 +98,7 @@ export default function PlanosList({
               <div>
                 <strong>{p.titulo}</strong>
                 <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                  {p.disciplina} • {new Date(p.dataPrevista || Date.now()).toLocaleDateString('pt-BR')}
+                  {p.disciplina} • {formatDateOnlyPtBr(p.dataPrevista, { year: 'numeric' })}
                 </div>
               </div>
               <button

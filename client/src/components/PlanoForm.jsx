@@ -4,6 +4,7 @@ import { gerarRecomendacoesApi } from '../services/aiService';
 import { AiOutlineRobot } from 'react-icons/ai';
 import { LiaSaveSolid } from 'react-icons/lia';
 import * as yup from 'yup';
+import { getTomorrowDateInputValue, toDateInputValue } from '../utils/dateOnly';
 
 const schema = yup.object({
   titulo: yup.string().required('Título obrigatório'),
@@ -24,7 +25,7 @@ export default function PlanoForm({ initial = {}, onSave }) {
   const [titulo, setTitulo] = useState(initial.titulo || '');
   const [objetivo, setObjetivo] = useState(initial.objetivo || '');
   const [resumo, setResumo] = useState(initial.resumo || '');
-  const [dataPrevista, setDataPrevista] = useState(initial.dataPrevista || '');
+  const [dataPrevista, setDataPrevista] = useState(toDateInputValue(initial.dataPrevista));
   const [disciplina, setDisciplina] = useState(initial.disciplina || '');
   const [conteudos, setConteudos] = useState((initial.conteudos || []).join('\n') || '');
   const [recursos, setRecursos] = useState(initial.recursos || initial.recursosApoio || '');
@@ -35,19 +36,6 @@ export default function PlanoForm({ initial = {}, onSave }) {
   const [saving, setSaving] = useState(false);
   const [iaLoading, setIaLoading] = useState(false);
   const [iaError, setIaError] = useState('');
-
-  // converte string -> Date (ou null)
-  const parseDate = d => (d ? new Date(d) : null);
-  const formatDate = d => (d ? d.toISOString().slice(0,10) : '');
-
-  const [dataPrevistaDate, setDataPrevistaDate] = useState(parseDate(initial.dataPrevista || ''));
-
-  // Função para obter data de amanhã (só permite datas futuras)
-  const getTomorrowDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -177,7 +165,7 @@ export default function PlanoForm({ initial = {}, onSave }) {
             value={dataPrevista || ''}
             onChange={e => setDataPrevista(e.target.value)}
             placeholder="dd/mm/aaaa"
-            min={getTomorrowDate()}
+            min={getTomorrowDateInputValue()}
           />
           {fieldErrors.dataPrevista && <div className="field-error">{fieldErrors.dataPrevista}</div>}
         </label>
