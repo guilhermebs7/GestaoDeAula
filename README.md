@@ -275,4 +275,4 @@ docker compose up --build
 └── README.md
 ```
 
-video da aplicação: https://www.youtube.com/watch?v=lZBuuhUTblA
+video da aplicação: https://www.youtube.com/watch?v=LtXC6rN-XCA
