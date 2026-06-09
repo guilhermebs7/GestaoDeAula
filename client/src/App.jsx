@@ -26,7 +26,7 @@ function App() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [dataAtual, setDataAtual] = useState('');
   const [saudacao, setSaudacao] = useState('');
-  const [totalPlanosSemana, setTotalPlanosSemana] = useState(0);
+  const [totalPlanos, setTotalPlanos] = useState(0);
   const [page, setPage] = useState(1);
 
   // Filtros
@@ -167,23 +167,14 @@ function App() {
           
           const queryString = params.toString();
           const url = queryString ? `/planos?${queryString}` : '/planos';
-          const [resPlanos, resResumo] = await Promise.all([
-            fetch(url),
-            fetch('/planos/resumo/semana')
-          ]);
+                    const resPlanos = await fetch(url);
           
           if (!resPlanos.ok) {
             throw new Error('Erro ao carregar planos');
           }
 
-          if (!resResumo.ok) {
-            throw new Error('Erro ao carregar resumo da semana');
-          }
-
           const dados = await resPlanos.json();
-          const resumo = await resResumo.json();
           setPlanos(dados);
-          setTotalPlanosSemana(Number(resumo.totalPlanosSemana || 0));
           setPage(1);
           setError('');
         } catch (err) {
@@ -194,11 +185,31 @@ function App() {
         }
       }
 
+
       carregarPlanos();
     }, 800); // Voltou para 500ms
 
     return () => clearTimeout(timer); // Limpa o timer se houver nova mudança
   }, [refreshKey, busca, disciplina, tags, ordenacao]);
+
+  useEffect(() => {
+    async function carregarTotalPlanos() {
+      try {
+        const res = await fetch('/planos/resumo/total');
+
+        if (!res.ok) {
+          throw new Error('Erro ao carregar total de planos');
+        }
+
+        const resumo = await res.json();
+        setTotalPlanos(Number(resumo.totalPlanos || 0));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    carregarTotalPlanos();
+  }, [refreshKey]);
 
   const totalPages = Math.max(1, Math.ceil(planos.length / itensPorPagina));
   const pageSafe = Math.min(page, totalPages);
@@ -225,7 +236,7 @@ function App() {
             <div className="hero-body">
               <h1>{saudacao}</h1>
               <p>
-                Você possui {totalPlanosSemana} planos.
+                Você possui {totalPlanos} planos cadastrados no banco.
               </p>
             </div>
           </section>

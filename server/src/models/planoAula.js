@@ -194,11 +194,16 @@ async function countPlanosDaSemana(referenceDate = new Date()) {
   });
 }
 
+async function countTotalPlanos() {
+  return prisma.planosAula.count();
+}
+
 module.exports = {
   createPlanoAula,
   getPlanosAula,
   getPlanoAulaById,
   updatePlanoAula,
   deletePlanoAula,
-  countPlanosDaSemana
+  countPlanosDaSemana,
+  countTotalPlanos
 };

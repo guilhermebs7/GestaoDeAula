@@ -57,6 +57,28 @@ async function contarPlanosDaSemana(req, res) {
   }
 }
 
+async function contarTotalPlanos(req, res) {
+  try {
+    const total = await planoAula.countTotalPlanos();
+
+    logger.info('Planos Total Count', {
+      total
+    });
+
+    return res.status(200).json({
+      totalPlanos: total
+    });
+  } catch (error) {
+    logger.error('Planos Total Count Failed', {
+      message: error.message
+    });
+    return res.status(500).json({
+      message: 'Erro ao contar planos totais',
+      error: error.message
+    });
+  }
+}
+
 async function buscarPlanoPorId(req, res) {
   try {
     logger.info('Planos Get By Id', {
@@ -185,6 +207,7 @@ async function deletarPlano(req, res) {
 module.exports = {
   listarPlanos,
   contarPlanosDaSemana,
+  contarTotalPlanos,
   buscarPlanoPorId,
   criarPlano,
   atualizarPlano,
